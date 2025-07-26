@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alpha Abacus Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --admin-confirm-color: #28a745;
+            --facilitator-pending-color: #ffc107;
+            --unpaid-color: #dc3545;
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .login-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .dashboard-header {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+        
+        .class-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .class-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
+        }
+        
+        .student-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            transition: all 0.2s ease;
+            margin-bottom: 1rem;
+            border-left: 4px solid #e9ecef;
+        }
+        
+        .student-card:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .paid-admin {
+            background-color: var(--admin-confirm-color);
+            color: white;
+        }
+        
+        .paid-facilitator {
+            background-color: var(--facilitator-pending-color);
+            color: #333;
+        }
+        
+        .unpaid {
+            background-color: var(--unpaid-color);
+            color: white;
+        }
+        
+        .action-btn {
+            transition: all 0.2s ease;
+        }
+        
+        .action-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .admin-mode .paid-indicator {
+            background-color: var(--admin-confirm-color);
+        }
+        
+        .facilitator-mode .paid-indicator {
+            background-color: var(--facilitator-pending-color);
+        }
+        
+        .header-shadow {
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .user-badge {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+        }
+        
+        .payment-status {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .payment-status:hover {
+            transform: scale(1.1);
+        }
+        
+        .payment-status.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        
+        .payment-status.disabled:hover {
+            transform: none;
+        }
+        
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+        }
+        
+        .btn-primary {
+            background: var(--primary-gradient);
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .class-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .cartoon-face {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 1rem;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .cartoon-face .face {
+            width: 100%;
+            height: 100%;
+            background: #FFD700;
+            border-radius: 50%;
+            position: relative;
+            border: 3px solid #FFA500;
+        }
+        
+        .cartoon-face .eyes {
+            position: absolute;
+            top: 35%;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+        }
+        
+        .cartoon-face .eye {
+            width: 20px;
+            height: 20px;
+            background: #333;
+            border-radius: 50%;
+            position: relative;
+        }
+        
+        .cartoon-face .eye::before {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+        }
+        
+        .cartoon-face .mouth {
+            position: absolute;
+            top: 60%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 20px;
+            background: #FF6B6B;
+            border-radius: 0 0 20px 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .cartoon-face.cover-eyes .eyes {
+            display: none;
+        }
+        
+        .cartoon-face.cover-eyes .hands {
+            position: absolute;
+            top: 30%;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+        }
+        
+        .cartoon-face.cover-eyes .hand {
+            width: 25px;
+            height: 25px;
+            background: #FFD700;
+            border-radius: 50%;
+            border: 2px solid #FFA500;
+            z-index: 10;
+        }
+        
+        .back-button {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+        
+        .stats-card {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            margin-left: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .login-container {
+                margin-top: 2rem;
+                padding: 1.5rem;
+            }
+            
+            .dashboard-header {
+                padding: 1rem;
+            }
+            
+            .class-card {
+                margin-bottom: 1rem;
+            }
+            
+            .cartoon-face {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .stats-card {
+                margin: 0.5rem 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Section -->
+    <div id="loginSection" class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8 col-sm-10">
+                <div class="login-container text-center">
+                    <h2 class="mb-4">
+                        <i class="fas fa-abacus me-2"></i>
+                        Alpha Abacus Management System
+                    </h2>
+                    
+                    <!-- Cartoon Face -->
+                    <div class="cartoon-face" id="cartoonFace">
+                        <div class="face">
+                            <div class="eyes">
+                                <div class="eye"></div>
+                                <div class="eye"></div>
+                            </div>
+                            <div class="mouth"></div>
+                            <div class="hands d-none">
+                                <div class="hand"></div>
+                                <div class="hand"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p class="text-muted mb-4">Login to access the system</p>
+                    
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <select class="form-select form-select-lg" id="userRole" required>
+                                <option value="">Select User Role</option>
+                                <option value="admin">Administrator</option>
+                                <option value="facilitator">Facilitator</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <input type="password" class="form-control form-control-lg" id="password" placeholder="Enter password" required>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Section -->
+    <div id="dashboardSection" class="container-fluid d-none">
+        <div class="dashboard-header mb-4">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h1>
+                        <i class="fas fa-abacus me-2"></i>
+                        Alpha Abacus Management System
+                    </h1>
+                    <p class="mb-0">Manage student payments efficiently</p>
+                </div>
+                <div class="col-md-6 text-md-end d-flex align-items-center justify-content-md-end justify-content-start flex-wrap">
+                    <div class="user-badge me-2 mb-2 mb-md-0">
+                        <span id="currentUserRole"></span>
+                    </div>
+                    <div class="stats-card mb-2 mb-md-0">
+                        <small>
+                            <i class="fas fa-check-circle me-1"></i>
+                            <span id="adminConfirmedCount">0</span> Students Paid
+                        </small>
+                    </div>
+                    <button class="btn btn-sm btn-light ms-2" onclick="logout()">
+                        <i class="fas fa-sign-out-alt me-1"></i>Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Classes Section -->
+        <div id="classesSection">
+            <h3 class="mb-4">
+                <i class="fas fa-chalkboard me-2"></i>
+                Select Class
+            </h3>
+            <div class="row" id="classesContainer">
+                <!-- Classes will be populated here -->
+            </div>
+        </div>
+
+        <!-- Students Section -->
+        <div id="studentsSection" class="d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <button class="back-button me-3" onclick="goBackToClasses()">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <h3 class="d-inline">
+                        <span id="currentClassName"></span> Students
+                    </h3>
+                </div>
+                <button class="btn btn-primary" onclick="showAddStudentModal()">
+                    <i class="fas fa-plus me-1"></i>Add Student
+                </button>
+            </div>
+            
+            <div class="row" id="studentsContainer">
+                <!-- Students will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Student Modal -->
+    <div class="modal fade" id="studentModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Add Student</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="studentForm">
+                        <input type="hidden" id="studentId">
+                        <div class="mb-3">
+                            <label class="form-label">Student Name</label>
+                            <input type="text" class="form-control" id="studentName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Class</label>
+                            <select class="form-select" id="studentClass" required>
+                                <option value="1">Class 1</option>
+                                <option value="2">Class 2</option>
+                                <option value="3">Class 3</option>
+                                <option value="4">Class 4</option>
+                                <option value="5">Class 5</option>
+                                <option value="6">Class 6</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveStudent()">Save Student</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // System data
+        const ADMIN_PASSWORD = 'admin777';
+        const FACILITATOR_PASSWORD = 'facil456';
+        
+        let currentUser = null;
+        let currentClass = null;
+        
+        // Initialize data storage
+        let students = JSON.parse(localStorage.getItem('students')) || [];
+        let adminConfirmedCount = parseInt(localStorage.getItem('adminConfirmedCount')) || 0;
+        
+        // DOM Elements
+        const loginSection = document.getElementById('loginSection');
+        const dashboardSection = document.getElementById('dashboardSection');
+        const classesSection = document.getElementById('classesSection');
+        const studentsSection = document.getElementById('studentsSection');
+        const currentUserRole = document.getElementById('currentUserRole');
+        const currentClassName = document.getElementById('currentClassName');
+        const classesContainer = document.getElementById('classesContainer');
+        const studentsContainer = document.getElementById('studentsContainer');
+        const cartoonFace = document.getElementById('cartoonFace');
+        const passwordInput = document.getElementById('password');
+        const eyes = document.querySelector('.eyes');
+        const hands = document.querySelector('.hands');
+        const adminConfirmedCountElement = document.getElementById('adminConfirmedCount');
+        
+        // Class icons mapping
+        const classIcons = {
+            1: 'fa-book',
+            2: 'fa-calculator',
+            3: 'fa-flask',
+            4: 'fa-globe',
+            5: 'fa-atom',
+            6: 'fa-graduation-cap'
+        };
+        
+        // Update admin confirmed count display
+        function updateAdminConfirmedCount() {
+            adminConfirmedCountElement.textContent = adminConfirmedCount;
+        }
+        
+        // Cartoon face animation
+        passwordInput.addEventListener('focus', function() {
+            eyes.classList.add('d-none');
+            hands.classList.remove('d-none');
+        });
+        
+        passwordInput.addEventListener('blur', function() {
+            eyes.classList.remove('d-none');
+            hands.classList.add('d-none');
+        });
+        
+        // Login functionality
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const role = document.getElementById('userRole').value;
+            const password = document.getElementById('password').value;
+            
+            if ((role === 'admin' && password === ADMIN_PASSWORD) || 
+                (role === 'facilitator' && password === FACILITATOR_PASSWORD)) {
+                
+                currentUser = role;
+                loginSection.classList.add('d-none');
+                dashboardSection.classList.remove('d-none');
+                currentUserRole.textContent = role.charAt(0).toUpperCase() + role.slice(1);
+                dashboardSection.className = dashboardSection.className.replace(/\b(admin|facilitator)-mode\b/g, '') + ' ' + role + '-mode';
+                
+                updateAdminConfirmedCount();
+                renderClasses();
+            } else {
+                alert('Invalid credentials. Please try again.');
+            }
+        });
+        
+        // Logout functionality
+        function logout() {
+            currentUser = null;
+            currentClass = null;
+            loginSection.classList.remove('d-none');
+            dashboardSection.classList.add('d-none');
+            document.getElementById('userRole').value = '';
+            document.getElementById('password').value = '';
+        }
+        
+        // Go back to classes
+        function goBackToClasses() {
+            studentsSection.classList.add('d-none');
+            classesSection.classList.remove('d-none');
+        }
+        
+        // Render classes
+        function renderClasses() {
+            classesContainer.innerHTML = '';
+            classesSection.classList.remove('d-none');
+            studentsSection.classList.add('d-none');
+            
+            for (let i = 1; i <= 6; i++) {
+                const classCard = document.createElement('div');
+                classCard.className = 'col-lg-4 col-md-6 mb-4';
+                classCard.innerHTML = `
+                    <div class="class-card p-4 text-center" onclick="selectClass(${i})">
+                        <div class="class-icon">
+                            <i class="fas ${classIcons[i]}"></i>
+                        </div>
+                        <h4>Class ${i}</h4>
+                        <p class="text-muted">
+                            ${students.filter(s => s.class == i).length} students
+                        </p>
+                        <button class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-right me-1"></i>View Students
+                        </button>
+                    </div>
+                `;
+                classesContainer.appendChild(classCard);
+            }
+        }
+        
+        // Select class
+        function selectClass(classNumber) {
+            currentClass = classNumber;
+            currentClassName.textContent = `Class ${classNumber}`;
+            classesSection.classList.add('d-none');
+            studentsSection.classList.remove('d-none');
+            renderStudents();
+        }
+        
+        // Render students
+        function renderStudents() {
+            studentsContainer.innerHTML = '';
+            const classStudents = students.filter(student => student.class == currentClass);
+            
+            if (classStudents.length === 0) {
+                studentsContainer.innerHTML = `
+                    <div class="col-12">
+                        <div class="text-center py-5">
+                            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                            <h4>No students found</h4>
+                            <p class="text-muted">Add students to this class to get started</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            classStudents.forEach(student => {
+                // Determine payment status class and if it should be disabled
+                let paymentStatusClass = 'unpaid';
+                let paymentIcon = 'fa-times';
+                let paymentText = 'Unpaid';
+                let isDisabled = '';
+                
+                if (student.paid === true) {
+                    paymentStatusClass = 'paid-admin';
+                    paymentIcon = 'fa-check';
+                    paymentText = 'Confirmed Paid';
+                    // Only disable for facilitator, admin can still click to uncheck
+                    if (currentUser === 'facilitator') {
+                        isDisabled = 'disabled';
+                    }
+                } else if (student.paid === 'pending') {
+                    paymentStatusClass = 'paid-facilitator';
+                    paymentIcon = 'fa-check';
+                    paymentText = 'Pending Confirmation';
+                }
+                
+                const studentCard = document.createElement('div');
+                studentCard.className = 'col-lg-6 col-md-12';
+                studentCard.innerHTML = `
+                    <div class="student-card p-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5>${student.name}</h5>
+                                <small class="text-muted">ID: ${student.id}</small>
+                            </div>
+                            <div class="d-flex gap-2">
+                                ${currentUser === 'admin' ? `
+                                    <button class="btn btn-sm btn-outline-danger action-btn" onclick="deleteStudent('${student.id}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                ` : ''}
+                                <button class="btn btn-sm btn-outline-secondary action-btn" onclick="editStudent('${student.id}')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <div class="payment-status ${paymentStatusClass} ${isDisabled}" 
+                                     onclick="${isDisabled ? '' : `togglePaymentStatus('${student.id}')`}">
+                                    <i class="fas ${paymentIcon}"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <small class="badge bg-secondary">Class ${student.class}</small>
+                            <small class="badge ${student.paid === true ? 'bg-success' : student.paid === 'pending' ? 'bg-warning' : 'bg-danger'} ms-1">
+                                ${paymentText}
+                            </small>
+                        </div>
+                    </div>
+                `;
+                studentsContainer.appendChild(studentCard);
+            });
+        }
+        
+        // Show add student modal
+        function showAddStudentModal() {
+            document.getElementById('modalTitle').textContent = 'Add Student';
+            document.getElementById('studentId').value = '';
+            document.getElementById('studentName').value = '';
+            document.getElementById('studentClass').value = currentClass;
+            new bootstrap.Modal(document.getElementById('studentModal')).show();
+        }
+        
+        // Edit student
+        function editStudent(studentId) {
+            const student = students.find(s => s.id === studentId);
+            if (student) {
+                document.getElementById('modalTitle').textContent = 'Edit Student';
+                document.getElementById('studentId').value = student.id;
+                document.getElementById('studentName').value = student.name;
+                document.getElementById('studentClass').value = student.class;
+                new bootstrap.Modal(document.getElementById('studentModal')).show();
+            }
+        }
+        
+        // Save student
+        function saveStudent() {
+            const studentId = document.getElementById('studentId').value;
+            const name = document.getElementById('studentName').value.trim();
+            const classNumber = document.getElementById('studentClass').value;
+            
+            if (!name) {
+                alert('Please enter a student name');
+                return;
+            }
+            
+            if (studentId) {
+                // Edit existing student
+                const studentIndex = students.findIndex(s => s.id === studentId);
+                if (studentIndex !== -1) {
+                    students[studentIndex].name = name;
+                    students[studentIndex].class = parseInt(classNumber);
+                }
+            } else {
+                // Add new student
+                const newStudent = {
+                    id: 'STU' + Date.now(),
+                    name: name,
+                    class: parseInt(classNumber),
+                    paid: false
+                };
+                students.push(newStudent);
+            }
+            
+            localStorage.setItem('students', JSON.stringify(students));
+            bootstrap.Modal.getInstance(document.getElementById('studentModal')).hide();
+            renderStudents();
+        }
+        
+        // Delete student
+        function deleteStudent(studentId) {
+            if (currentUser !== 'admin') {
+                alert('Only administrators can delete students');
+                return;
+            }
+            
+            if (confirm('Are you sure you want to delete this student?')) {
+                students = students.filter(student => student.id !== studentId);
+                localStorage.setItem('students', JSON.stringify(students));
+                renderStudents();
+            }
+        }
+        
+        // Toggle payment status
+        function togglePaymentStatus(studentId) {
+            const student = students.find(s => s.id === studentId);
+            if (student) {
+                if (currentUser === 'facilitator') {
+                    // Facilitator can only mark as pending if not already confirmed
+                    if (student.paid !== true) {
+                        student.paid = 'pending';
+                    }
+                } else if (currentUser === 'admin') {
+                    // Admin can toggle between all states
+                    if (student.paid === 'pending') {
+                        student.paid = true; // Confirmed
+                        adminConfirmedCount++;
+                        localStorage.setItem('adminConfirmedCount', adminConfirmedCount);
+                        updateAdminConfirmedCount();
+                    } else if (student.paid === true) {
+                        student.paid = false; // Reset to unpaid
+                        adminConfirmedCount = Math.max(0, adminConfirmedCount - 1);
+                        localStorage.setItem('adminConfirmedCount', adminConfirmedCount);
+                        updateAdminConfirmedCount();
+                    } else {
+                        student.paid = true; // Mark as paid directly
+                        adminConfirmedCount++;
+                        localStorage.setItem('adminConfirmedCount', adminConfirmedCount);
+                        updateAdminConfirmedCount();
+                    }
+                }
+                localStorage.setItem('students', JSON.stringify(students));
+                renderStudents();
+            }
+        }
+        
+        // Initialize with sample data if empty
+        if (students.length === 0) {
+            students = [
+                { id: 'STU001', name: 'John Smith', class: 1, paid: true },
+                { id: 'STU002', name: 'Emma Johnson', class: 1, paid: 'pending' },
+                { id: 'STU003', name: 'Michael Brown', class: 2, paid: false },
+                { id: 'STU004', name: 'Sarah Davis', class: 3, paid: 'pending' },
+                { id: 'STU005', name: 'David Wilson', class: 4, paid: true }
+            ];
+            localStorage.setItem('students', JSON.stringify(students));
+        }
+        
+        // Initialize admin confirmed count if not set
+        if (!localStorage.getItem('adminConfirmedCount')) {
+            adminConfirmedCount = students.filter(s => s.paid === true).length;
+            localStorage.setItem('adminConfirmedCount', adminConfirmedCount);
+        }
+        
+        updateAdminConfirmedCount();
+    </script>
+</body>
+</html>
